@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<style type="text/css" media="all">
+  text {
+    font-size: 50px;
+  }
+</style>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Snake</title>
+<canvas></canvas>
+<script type="text/javascript" charset="utf-8">
+"use strict";
+const aspect=window.visualViewport.height/window.visualViewport.width;
+const html=document.querySelector("html");
+const head=document.querySelector("head");
+const body=document.querySelector("body");
+const canvas=document.querySelector("canvas");
+const setup={
+  width:98.5,
+  height:98.5/aspect,
+  smoothing:2,
+  color:"black",
+  bordercolor:"grey",
+  backgroundcolor:"darkslategrey",
+  margin:{
+    left:45,
+    top:1
+  },
+  border:{
+    left:0.3,
+    right:0.3,
+    top:0.3/aspect,
+    bottom:0.3/aspect
+  },
+  qualityratio:0.4
+};
+html.style.margin=0;
+html.style.position="fixed";
+head.style.margin=0;
+head.style.position="fixed";
+body.style.margin=0;
+body.style.position="fixed";
+body.style.backgroundColor=setup.backgroundcolor;
+canvas.width=0.01*window.visualViewport.width*(setup.width-setup.border.left-setup.border.right)*setup.qualityratio;
+canvas.height=0.01*window.visualViewport.height*(setup.height-setup.border.top-setup.border.bottom)*setup.qualityratio;
+canvas.style.width=setup.width-setup.border.left-setup.border.right+"vw";
+canvas.style.height=setup.height-setup.border.top-setup.border.bottom+"vh";
+canvas.style.backgroundColor=setup.color;
+canvas.style.marginLeft=setup.margin.left*0.02*(50-0.5*setup.width)+"vw";
+canvas.style.marginRight=(100-setup.margin.left)*0.02*(50-0.5*setup.width)+"vw";
+canvas.style.marginTop=setup.margin.top*0.02*(50-0.5*setup.height)+"vh";
+canvas.style.marginBottom=(100-setup.margin.top)*0.02*(50-0.5*setup.height)+"vh";
+canvas.style.borderLeft=setup.border.left+"vw";
+canvas.style.borderRight=setup.border.right+"vw";
+canvas.style.borderTop=setup.border.top+"vh";
+canvas.style.borderBottom=setup.border.bottom+"vh";
+canvas.style.borderStyle="solid";
+canvas.style.borderColor=setup.bordercolor;
+canvas.style.borderRadius=setup.smoothing+"px";
+canvas.style.imageRendering="pixelated";
+canvas.style.shapeRendering="geometricprecision";
+canvas.style.overflow="auto";
+const ctx=canvas.getContext("2d");
+</script>
+<script src="javascript.js" type="text/javascript" charset="utf-8"></script>
+<script src="AI.js" type="text/javascript" charset="utf-8"></script>
+<text id="moves">0</text><br/>
+<text id="fruit">0</text>
+<script type="text/javascript" charset="utf-8">
+//Setup
+mov=document.querySelector("#moves");
+fru=document.querySelector("#fruit");
+//Audio
+audio=new Audio("./Chronos.mp3");
+audio.loop=true;
+//Game
+gradient=ctx.createLinearGradient(0,0,canvas.width,canvas.width);
+gradient.addColorStop(0,"red");
+gradient.addColorStop(0.2,"yellow");
+gradient.addColorStop(0.4,"green");
+gradient.addColorStop(0.6,"cyan");
+gradient.addColorStop(0.8,"blue");
+gradient.addColorStop(1,"magenta");
+snake=new game({gridsize:30,extraborder:1,border:2,extrabordercolor:"#808080",bordercolor:"#010101",snakecolor:gradient,fruitcolor:"#ffffff"});
+//Animate
+speed=1;
+backup=$=>{
+  let v=window.performance.now();
+  for(i=0;i<speed;i++){
+    try {
+      snake.move(AI());
+    } catch (e) {
+      console.warn(e);
+    }
+  }
+  snake.draw(ctx,visualViewport.width*setup.qualityratio);
+  v=60*(window.performance.now()-v)/1000;
+  mov.textContent=snake.moves;
+  fru.textContent=snake.position.length;
+  if(v<1){
+    speed++;
+  }
+  try {
+    return requestAnimationFrame(Animate);
+  } catch (e) {
+    console.log("Snake stopped");
+  }
+};
+
+Animate=null;
+
+addEventListener("dblclick",$=>{
+  if(Animate==null){
+    Animate=backup;
+    audio.play();
+  }else{
+    Animate=null;
+    audio.pause();
+  }
+});
+
+audio.onplay=$=>{
+  Animate();
+};
+
+Animate=backup;
+audio.play();
+
+</script>
